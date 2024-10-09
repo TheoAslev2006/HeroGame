@@ -7,15 +7,15 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Game extends JPanel implements Runnable{
-    public static final int WIDTH = 1920;
-    public static final int HEIGHT = 1080;
-    public static final int textureTileSize = 32;
+    public static final int WIDTH = 1600;
+    public static final int HEIGHT = 900;
+    public static final int textureTileSize = 16;
     Hero hero;
     Thread thread;
     Keybindings keybindings;
     World world;
     public Game(){
-        world = new World(10, 10);
+        world = new World(56, 100);
         keybindings = new Keybindings();
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.WHITE);
