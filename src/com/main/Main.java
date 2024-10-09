@@ -1,6 +1,7 @@
 package com.main;
 
 import com.main.Graphics.Game;
+import com.main.Utils.Keybindings;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -21,10 +22,10 @@ public class Main {
             }
         });
         gameFrame.setResizable(false);
-
         gameFrame.add(game);
         gameFrame.pack();
         gameFrame.setLocationRelativeTo(null);
         gameFrame.setVisible(true);
+        game.start();
     }
 }
