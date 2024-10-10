@@ -15,7 +15,7 @@ public class Game extends JPanel implements Runnable{
     Keybindings keybindings;
     World world;
     public Game(){
-        world = new World(56, 100);
+        world = new World(56, 100, 1);
         keybindings = new Keybindings();
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.WHITE);
@@ -83,8 +83,9 @@ public class Game extends JPanel implements Runnable{
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        hero.draw(g2d);
         world.renderWorld(g2d);
+        hero.draw(g2d);
+
     }
 
     @Override

@@ -10,67 +10,74 @@ import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class World {
-    double Frequency = 1.0/25;
+    double frequencyBase = 1.0/5;
+    double lacunarity = 2;
+    double persistance = 0.4;
+    double amplitude = 1.0;
+    double octaves = 4;
     int randint;
     int[][] matrix;
     BufferedImage[] bufferedImages;
     int width;
     int height;
     int tileSize = Game.textureTileSize;
-    int startPosY = 0;
-    int startPosX = 0;
-    public World(int height, int width){
+    public World(int height, int width, long seed){
         this.height = height;
         this.width = width;
         randint = ThreadLocalRandom.current().nextInt(0,100);
         matrix = new int[(width)][(height)];
-        final int[] tileType = {
-                1,2,3,4,5,6
-        };
+        TileTypes tileTypes;
         final String[] fileLoctation = {
-                "src\\Resource\\Textures\\GrassBlock1.png",
-                "src\\Resource\\Textures\\GrassBlockLeft.png",
-                "src\\Resource\\Textures\\GrassBlockRight.png",
-                "src\\Resource\\Textures\\DirtBlock1.png",
-                "src\\Resource\\Textures\\DirtBlock2.png",
-                "src\\Resource\\Textures\\StoneBlock1.png"
+                "src\\Resource\\Textures\\water.png",
+                "src\\Resource\\Textures\\grass.png",
+                "src\\Resource\\Textures\\stone.png",
         };
-        bufferedImages = new BufferedImage[tileType.length + 1];
-        for (int i = 0; i < 6; i++) {
+        bufferedImages = new BufferedImage[3];
+        for (int i = 0; i < 3; i++) {
             try {
                 bufferedImages[i] = FileHandling.load(new File(fileLoctation[i]));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+        matrix = GenerateMatrix(width,height, 100);
 
     }
+    public double generateMultipleLayerdNoise(long seed,int x, int y,double frequency, double octaves, double lacunarity, double amplitude, double persistance){
+        double multiLayerdNoise = 0;
+        for (int i = 0; i < octaves; i++) {
+            double value = OpenSimplex2S.noise2_ImproveX(seed,x *frequency, y * frequency) * amplitude;
+
+            multiLayerdNoise += value;
+
+            frequency *= lacunarity;
+            amplitude *= persistance;
+        }
+        return multiLayerdNoise;
+    }
     public int[][] GenerateMatrix(int width, int height, int seed){
-        double offSetY = OpenSimplex2S.noise2(seed, 10, 10);
         int[][] Wmatrix = new int[width][height];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                double noise = generateMultipleLayerdNoise(seed, j, i, frequencyBase, octaves, lacunarity, amplitude, persistance);
 
-            for (int y = 0; y<height; y++) {
-                for (int x = 0; x < width; x++) {
-
-                    if (y <= 20){
-                        double value = OpenSimplex2S.noise2_ImproveX(randint, x * Frequency, y * Frequency);
-                        int type = Math.min(3,(int) ((value + 1) * 1.5));
-                        Wmatrix[x][y] = type;
-                    }
-                    if (y >= 20) {
-                        double value = OpenSimplex2S.noise2_ImproveX(randint, x * Frequency, y * Frequency);
-                        int type = Math.min(5,(int) ((value + 1) * 3.5));
-                        Wmatrix[x][y] = type;
-
-                    }
-
+                if ( noise < -0.4 ) {
+                    Wmatrix[j][i] = 0;
                 }
+                else if (noise < 0.6){
+                    Wmatrix[j][i] = 1;
+                }
+                else{
+                    Wmatrix[j][i] = 2;
+                }
+
             }
+        }
+
         return Wmatrix;
 
     }
     public void renderWorld(Graphics2D g2d){
-        matrix = GenerateMatrix(width,height, 100);
         for (int i = 0; i <height; i++) {
             for (int j = 0; j<width; j++){
                 if (matrix[j][i] != 0)
@@ -78,4 +85,5 @@ public class World {
             }
         }
     }
+
 }
