@@ -10,21 +10,22 @@ import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class World {
-    double frequencyBase = 1.0/5;
+
+    double frequencyBase = 1.0/10;
     double lacunarity = 2;
     double persistance = 0.4;
     double amplitude = 1.0;
     double octaves = 4;
-    int randint;
+    int xOffset;
+    int yOffset;
     int[][] matrix;
     BufferedImage[] bufferedImages;
     int width;
     int height;
     int tileSize = Game.textureTileSize;
-    public World(int height, int width, long seed){
+    public World(int x, int y, int height, int width, long seed){
         this.height = height;
         this.width = width;
-        randint = ThreadLocalRandom.current().nextInt(0,100);
         matrix = new int[(width)][(height)];
         TileTypes tileTypes;
         final String[] fileLoctation = {
@@ -60,7 +61,6 @@ public class World {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 double noise = generateMultipleLayerdNoise(seed, j, i, frequencyBase, octaves, lacunarity, amplitude, persistance);
-
                 if ( noise < -0.4 ) {
                     Wmatrix[j][i] = 0;
                 }
@@ -70,7 +70,6 @@ public class World {
                 else{
                     Wmatrix[j][i] = 2;
                 }
-
             }
         }
 
@@ -78,12 +77,15 @@ public class World {
 
     }
     public void renderWorld(Graphics2D g2d){
+
         for (int i = 0; i <height; i++) {
             for (int j = 0; j<width; j++){
-                if (matrix[j][i] != 0)
-                    g2d.drawImage(bufferedImages[matrix[j][i]], j * tileSize, (i * tileSize), null);
+                g2d.drawImage(bufferedImages[matrix[j][i]], (j-xOffset) * tileSize, (i - yOffset) * tileSize, null);
             }
         }
     }
-
+    public void moveWorld(int vectorX, int vectorY, double speed){
+        xOffset += (int) (vectorX * speed);
+        yOffset += (int) (vectorY * speed);
+    }
 }

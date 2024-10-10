@@ -14,14 +14,18 @@ public class Game extends JPanel implements Runnable{
     Thread thread;
     Keybindings keybindings;
     World world;
+    int x;
+    int y;
     public Game(){
-        world = new World(56, 100, 1);
+        world = new World(0, 0,56, 100, 1);
         keybindings = new Keybindings();
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.WHITE);
         this.setOpaque(true);
         this.setDoubleBuffered(true);
         hero = new Hero();
+        hero.setX(WIDTH/2 + hero.getWidth()/2);
+        hero.setY(HEIGHT/2 + hero.getHeight()/2);
         this.addKeyListener(keybindings);
         this.setFocusable(true);
 
@@ -41,43 +45,21 @@ public class Game extends JPanel implements Runnable{
     }
 
     public void update(){
-        hero.setVx(0);
-        hero.setVy(0);
         if (keybindings.up){
-            if (!keybindings.right && !keybindings.left){
-                hero.setVy(-10);
-            }
-            hero.setVy(-7);
+            world.moveWorld(0,-2,2);
         }
         if (keybindings.down){
-            if (!keybindings.right && !keybindings.left){
-                hero.setVy(10);
-            }
-            hero.setVy(7);
+            world.moveWorld(0,2,2);
         }
 
         if (keybindings.right){
-            if (!keybindings.down && !keybindings.up){
-                hero.setVx(10);
-            }
-            hero.setVx(7);
+            world.moveWorld(2,0,2);
         }
 
-        if (keybindings.left){
-            if (!keybindings.down && !keybindings.up){
-                hero.setVx(-10);
-            }
-            hero.setVx(-7);
-        }
-        if (hero.getVy() != 0){
-            hero.setY(hero.getY() + hero.getVy());
-
-        }
-        if (hero.getVx() != 0){
-            hero.setX(hero.getX() + hero.getVx());
+        if (keybindings.left) {
+            world.moveWorld(-2,0,2);
         }
         repaint();
-
     }
     @Override
     public void paintComponent(Graphics g){
@@ -92,7 +74,6 @@ public class Game extends JPanel implements Runnable{
     public void run() {
         while (thread!=null){
             update();
-            repaint();
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
