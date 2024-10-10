@@ -1,4 +1,4 @@
-package com.main.Graphics;
+package com.main.worldgen;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

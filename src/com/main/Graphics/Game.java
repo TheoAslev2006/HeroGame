@@ -3,6 +3,8 @@ package com.main.Graphics;
 import com.main.Main;
 import com.main.Utils.Keybindings;
 import com.main.Sprites.Hero;
+import com.main.Utils.MouseController;
+import com.main.worldgen.World;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,16 +12,18 @@ import java.awt.*;
 public class Game extends JPanel implements Runnable{
     public static final int WIDTH = Main.dimension.width;
     public static final int HEIGHT = Main.dimension.width;
-    public static final int textureTileSize = 16;
+    public static final int textureTileSize = 32;
     Hero hero;
     Thread thread;
     Keybindings keybindings;
+    MouseController mouseController;
     World world;
     int x;
     int y;
     public Game(){
         world = new World(0, 0,56, 100, 1);
         keybindings = new Keybindings();
+        mouseController = new MouseController();
         this.setPreferredSize(Main.dimension);
         this.setBackground(Color.WHITE);
         this.setOpaque(true);
@@ -27,8 +31,6 @@ public class Game extends JPanel implements Runnable{
         hero = new Hero();
         this.addKeyListener(keybindings);
         this.setFocusable(true);
-
-
     }
 
     public void start(){

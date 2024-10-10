@@ -1,18 +1,19 @@
-package com.main.Graphics;
+package com.main.worldgen;
 
+import com.main.Graphics.Game;
 import com.main.Utils.FileHandling;
 import com.main.Utils.OpenSimplex2S;
 
 import java.awt.*;
-import java.awt.desktop.OpenFilesEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Random;
 
 public class World {
-
-    double frequencyBase = 1.0/200;
+    Random random = new Random();
+    double frequencyBase = 1.0/10;
     double lacunarity = 2;
     double persistance = 0.4;
     double amplitude = 1.0;
@@ -28,12 +29,16 @@ public class World {
     public World(int x, int y, int height, int width, long seed){
         this.seed = seed;
         final String[] fileLoctation = {
-                "src\\Resource\\Textures\\water.png",
-                "src\\Resource\\Textures\\grass.png",
-                "src\\Resource\\Textures\\stone.png",
+                "src\\Resource\\Textures\\WorldBuilding\\Water.png",
+                "src\\Resource\\Textures\\WorldBuilding\\grass1.png",
+                "src\\Resource\\Textures\\WorldBuilding\\grass2.png",
+                "src\\Resource\\Textures\\WorldBuilding\\grass3.png",
+                "src\\Resource\\Textures\\WorldBuilding\\Mountain1.png",
+                "src\\Resource\\Textures\\WorldBuilding\\Mountain2.png",
+                "src\\Resource\\Textures\\WorldBuilding\\Mountain3.png",
         };
-        bufferedImages = new BufferedImage[3];
-        for (int i = 0; i < 3; i++) {
+        bufferedImages = new BufferedImage[fileLoctation.length];
+        for (int i = 0; i < fileLoctation.length; i++) {
             try {
                 bufferedImages[i] = FileHandling.load(new File(fileLoctation[i]));
             } catch (IOException e) {
@@ -68,12 +73,15 @@ public class World {
                 if ( noise < -0.7 ) {
                     chunkTiles[j][i] = 0;
                 }
-                else if (noise < 0.4){
-                    chunkTiles[j][i] = 1;
-                }
                 else{
-                    chunkTiles[j][i] = 2;
+                    chunkTiles[j][i] = random.nextInt(1,3);
+
                 }
+                /*
+                TODO make mountain not look wierd
+                else{
+                    chunkTiles[j][i] = random.nextInt(4, 6);
+                }*/
             }
         }
 
