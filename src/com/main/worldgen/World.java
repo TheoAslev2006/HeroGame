@@ -1,6 +1,7 @@
 package com.main.worldgen;
 
 import com.main.Graphics.Game;
+import com.main.Sprites.Tree;
 import com.main.Utils.FileHandling;
 import com.main.Utils.OpenSimplex2S;
 
@@ -13,14 +14,15 @@ import java.util.Random;
 
 public class World {
     Random random = new Random();
-    double frequencyBase = 1.0/10;
-    double lacunarity = 2;
-    double persistance = 0.4;
-    double amplitude = 1.0;
-    double octaves = 4;
+    public double frequencyBase = 1.0/200;
+    public double lacunarity = 2;
+    public double persistance = 0.4;
+    public double amplitude = 1.0;
+    public double octaves = 4;
     int xOffset;
     int yOffset;
     HashMap<String, Chunk>chunks = new HashMap<>();
+    HashMap<String, Tree>trees = new HashMap<>();
     BufferedImage[] bufferedImages;
     int width;
     int height;
@@ -73,15 +75,14 @@ public class World {
                 if ( noise < -0.7 ) {
                     chunkTiles[j][i] = 0;
                 }
+                else if (noise < 0.6){
+                    chunkTiles[j][i] = random.nextInt(1,3);
+
+                }
                 else{
                     chunkTiles[j][i] = random.nextInt(1,3);
 
                 }
-                /*
-                TODO make mountain not look wierd
-                else{
-                    chunkTiles[j][i] = random.nextInt(4, 6);
-                }*/
             }
         }
 
@@ -114,7 +115,5 @@ public class World {
     public void moveWorld(int vectorX, int vectorY, double speed){
         xOffset += (int) (vectorX * speed);
         yOffset += (int) (vectorY * speed);
-
-
     }
 }

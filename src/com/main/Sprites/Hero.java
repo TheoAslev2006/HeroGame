@@ -28,12 +28,4 @@ public class Hero{
     public void draw(Graphics2D g2d){
         g2d.drawImage(bufferedImage, x, y, null);
     }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
 }
