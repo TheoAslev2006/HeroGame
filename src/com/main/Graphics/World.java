@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class World {
 
-    double frequencyBase = 1.0/10;
+    double frequencyBase = 1.0/200;
     double lacunarity = 2;
     double persistance = 0.4;
     double amplitude = 1.0;
@@ -65,10 +65,10 @@ public class World {
 
                 double noise = generateMultipleLayerdNoise(seed, xCord, yCord, frequencyBase, octaves, lacunarity, amplitude, persistance);
 
-                if ( noise < -0.3 ) {
+                if ( noise < -0.7 ) {
                     chunkTiles[j][i] = 0;
                 }
-                else if (noise < 0.6){
+                else if (noise < 0.4){
                     chunkTiles[j][i] = 1;
                 }
                 else{
@@ -106,5 +106,7 @@ public class World {
     public void moveWorld(int vectorX, int vectorY, double speed){
         xOffset += (int) (vectorX * speed);
         yOffset += (int) (vectorY * speed);
+
+
     }
 }

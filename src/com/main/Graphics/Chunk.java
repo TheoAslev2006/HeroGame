@@ -15,8 +15,8 @@ public class Chunk {
         for (int i = 0; i < tile.length; i++) {
             for (int j = 0; j < tile[i].length; j++) {
 
-                int renderX = x + (j * tileSize);
-                int renderY = y + (i * tileSize);
+                int renderX = x + (i * tileSize);
+                int renderY = y + (j * tileSize);
 
                 g2d.drawImage(tileImage[tile[i][j]], renderX, renderY, tileSize, tileSize,null);
             }
