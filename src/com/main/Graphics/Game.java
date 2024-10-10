@@ -1,5 +1,6 @@
 package com.main.Graphics;
 
+import com.main.Main;
 import com.main.Utils.Keybindings;
 import com.main.Sprites.Hero;
 
@@ -7,8 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Game extends JPanel implements Runnable{
-    public static final int WIDTH = 1600;
-    public static final int HEIGHT = 900;
+    public static final int WIDTH = Main.dimension.width;
+    public static final int HEIGHT = Main.dimension.width;
     public static final int textureTileSize = 16;
     Hero hero;
     Thread thread;
@@ -19,13 +20,11 @@ public class Game extends JPanel implements Runnable{
     public Game(){
         world = new World(0, 0,56, 100, 1);
         keybindings = new Keybindings();
-        this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        this.setPreferredSize(Main.dimension);
         this.setBackground(Color.WHITE);
         this.setOpaque(true);
         this.setDoubleBuffered(true);
         hero = new Hero();
-        hero.setX(WIDTH/2 + hero.getWidth()/2);
-        hero.setY(HEIGHT/2 + hero.getHeight()/2);
         this.addKeyListener(keybindings);
         this.setFocusable(true);
 

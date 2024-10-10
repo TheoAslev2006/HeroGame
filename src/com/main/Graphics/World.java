@@ -4,10 +4,11 @@ import com.main.Utils.FileHandling;
 import com.main.Utils.OpenSimplex2S;
 
 import java.awt.*;
+import java.awt.desktop.OpenFilesEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.HashMap;
 
 public class World {
 
@@ -18,16 +19,14 @@ public class World {
     double octaves = 4;
     int xOffset;
     int yOffset;
-    int[][] matrix;
+    HashMap<String, Chunk>chunks = new HashMap<>();
     BufferedImage[] bufferedImages;
     int width;
     int height;
     int tileSize = Game.textureTileSize;
+    public final long seed;
     public World(int x, int y, int height, int width, long seed){
-        this.height = height;
-        this.width = width;
-        matrix = new int[(width)][(height)];
-        TileTypes tileTypes;
+        this.seed = seed;
         final String[] fileLoctation = {
                 "src\\Resource\\Textures\\water.png",
                 "src\\Resource\\Textures\\grass.png",
@@ -41,8 +40,6 @@ public class World {
                 throw new RuntimeException(e);
             }
         }
-        matrix = GenerateMatrix(width,height, 100);
-
     }
     public double generateMultipleLayerdNoise(long seed,int x, int y,double frequency, double octaves, double lacunarity, double amplitude, double persistance){
         double multiLayerdNoise = 0;
@@ -56,31 +53,53 @@ public class World {
         }
         return multiLayerdNoise;
     }
-    public int[][] GenerateMatrix(int width, int height, int seed){
-        int[][] Wmatrix = new int[width][height];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                double noise = generateMultipleLayerdNoise(seed, j, i, frequencyBase, octaves, lacunarity, amplitude, persistance);
-                if ( noise < -0.4 ) {
-                    Wmatrix[j][i] = 0;
+    public Chunk generateChunk(int x, int y){
+        int[][] chunkTiles = new int[16][16];
+
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+
+                int xCord = (x * 16) + j;
+                int yCord = (y * 16) + i;
+
+
+                double noise = generateMultipleLayerdNoise(seed, xCord, yCord, frequencyBase, octaves, lacunarity, amplitude, persistance);
+
+                if ( noise < -0.3 ) {
+                    chunkTiles[j][i] = 0;
                 }
                 else if (noise < 0.6){
-                    Wmatrix[j][i] = 1;
+                    chunkTiles[j][i] = 1;
                 }
                 else{
-                    Wmatrix[j][i] = 2;
+                    chunkTiles[j][i] = 2;
                 }
             }
         }
 
-        return Wmatrix;
-
+        return new Chunk(bufferedImages, chunkTiles);
+    }
+    public Chunk getChunk(int chunkX, int chunkY){
+        String chunkKey = chunkX + "," + chunkY;
+        if (!chunks.containsKey(chunkKey)) {
+            chunks.put(chunkKey, generateChunk(chunkX, chunkY));
+        }
+        return chunks.get(chunkKey);
     }
     public void renderWorld(Graphics2D g2d){
+        int chunkXStart = (xOffset) / (16 * tileSize);
+        int chunkYStart = (yOffset) / (16 * tileSize);
 
-        for (int i = 0; i <height; i++) {
-            for (int j = 0; j<width; j++){
-                g2d.drawImage(bufferedImages[matrix[j][i]], (j-xOffset) * tileSize, (i - yOffset) * tileSize, null);
+        int chunkVisibilityRange = 3;
+
+        for (int y = chunkYStart - chunkVisibilityRange; y <= chunkYStart + chunkVisibilityRange; y++) {
+            for (int x = chunkXStart - chunkVisibilityRange; x<= chunkXStart + chunkVisibilityRange; x++){
+                Chunk chunk = getChunk(x, y);
+
+                int renderX = (x * 16 * tileSize) - xOffset;
+                int renderY = (y * 16 * tileSize) - yOffset;
+
+                chunk.renderChunk(g2d, renderX, renderY, tileSize);
             }
         }
     }
