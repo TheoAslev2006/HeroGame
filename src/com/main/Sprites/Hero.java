@@ -11,10 +11,11 @@ import java.io.*;
 import java.nio.file.Path;
 
 public class Hero{
-    int x = 250;
-    int y = 250;
-    int width;
-    int height;
+    int width = 16;
+    int height = 16;
+    int x = Game.WIDTH/2 + width/2;
+    int y = Game.HEIGHT/2 + height/2;
+
     BufferedImage bufferedImage;
     public Hero(){
         File file = new File("src\\Resource\\Textures\\Sprites\\Sprite.png");

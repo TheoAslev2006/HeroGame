@@ -21,7 +21,7 @@ public class Game extends JPanel implements Runnable{
     int x;
     int y;
     public Game(){
-        world = new World(0, 0,56, 100, 1);
+        world = new World(0, 0,56, 100);
         keybindings = new Keybindings();
         mouseController = new MouseController();
         this.setPreferredSize(Main.dimension);
@@ -46,6 +46,10 @@ public class Game extends JPanel implements Runnable{
     }
 
     public void update(){
+
+        if (mouseController.point != null){
+            world.removeObject(1,1);
+        }
         if (keybindings.up){
             world.moveWorld(0,-2,2);
         }
@@ -60,6 +64,7 @@ public class Game extends JPanel implements Runnable{
         if (keybindings.left) {
             world.moveWorld(-2,0,2);
         }
+        mouseController.point = null;
         repaint();
     }
     @Override
@@ -76,7 +81,7 @@ public class Game extends JPanel implements Runnable{
         while (thread!=null){
             update();
             try {
-                Thread.sleep(10);
+                Thread.sleep(16);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

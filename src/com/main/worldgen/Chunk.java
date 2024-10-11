@@ -2,10 +2,12 @@ package com.main.worldgen;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 public class Chunk {
     int[][] tile;
     BufferedImage[] tileImage;
+    Random random = new Random();
     public final int CHUNKSIZE = 16;
     public Chunk(BufferedImage[] tileImage, int[][] tile) {
         this.tileImage= tileImage;
@@ -18,8 +20,12 @@ public class Chunk {
                 int renderX = x + (i * tileSize);
                 int renderY = y + (j * tileSize);
 
-                g2d.drawImage(tileImage[tile[i][j]], renderX, renderY, tileSize, tileSize,null);
+                g2d.drawImage(tileImage[tile[i][j]], renderX, renderY, tileSize, tileSize, null);
+
             }
         }
+    }
+    public int getTilesAt(int x, int y){
+        return tile[x][y];
     }
 }
