@@ -15,4 +15,18 @@ public class FileHandling {
             return ImageIO.read(stream);
         }
     }
+    public static BufferedImage[] loadTileSet(String file, int tileWidth, int tileHeight) throws IOException {
+        BufferedImage tileSet = ImageIO.read(new File(file));
+        int columns = tileSet.getWidth()/tileWidth;
+        int rows = tileSet.getHeight()/tileHeight;
+
+        BufferedImage[] tileArray = new BufferedImage[rows*columns];
+        for (int j = 0; j < rows; j++) {
+            for (int i = 0; i < columns; i++) {
+                tileArray[j * columns + i] = tileSet.getSubimage(i *tileWidth, j * tileHeight, tileWidth, tileHeight);
+            }
+        }
+
+        return tileArray;
+    }
 }

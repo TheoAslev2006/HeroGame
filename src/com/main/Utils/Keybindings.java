@@ -8,6 +8,7 @@ public class Keybindings implements KeyListener {
     public Boolean down=false;
     public Boolean right=false;
     public Boolean left=false;
+    public Boolean destroy = false;
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -32,6 +33,10 @@ public class Keybindings implements KeyListener {
             case KeyEvent.VK_D:
                 right = true;
                 System.out.println("right");
+                break;
+            case KeyEvent.VK_SPACE:
+                destroy =  true;
+                System.out.println("Destroy");
                 break;
         }
     }

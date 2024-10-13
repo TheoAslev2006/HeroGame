@@ -12,46 +12,42 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class World {
-    Random random = new Random();
-    public static double frequencyBase = 1.0/100;
+    public static double frequencyBase = 1.0/100 ;
     public static double lacunarity = 2;
     public static double persistance = 0.4;
     public static double amplitude = 1.0;
     public static double octaves = 5;
     public static int treeSpawnRate = 10;
+    int chunkVisibilityRange = 1;
     int xOffset;
     int yOffset;
-    HashMap<String, Chunk>chunks = new HashMap<>();
-    HashMap<String, WorldObject>worldObjects = new HashMap<>();
+    HashMap<String, Chunk> chunkMap = new HashMap<>();
+    HashMap<String, WorldObjectChunk> worldObjectChunkMap = new HashMap<>();
     BufferedImage[] tileTextures;
     BufferedImage[] objectTextures;
-    int tileVariants = 2;
+    int tileVariants = 22;
     int objectVariants = 2;
     int width;
     int height;
     int tileSize = Game.textureTileSize;
     public static final long seed =10000;
+    Random random = new Random(seed);
     public World(int x, int y, int height, int width){
-        final String[] fileLoctation = {
-                "src\\Resource\\Textures\\WorldBuilding\\Water.png",
-                "src\\Resource\\Textures\\WorldBuilding\\grass.png",
-                "src\\Resource\\Textures\\WorldObjects\\Tree1.png"
-        };
+        final String fileLoctation = "src\\Resource\\Textures\\WorldBuilding\\WaterGroundTileSet.png";
+
         tileTextures = new BufferedImage[tileVariants];
-        objectTextures = new BufferedImage[objectVariants];
-        for (int i = 0; i < tileVariants; i++) {
-            try {
-                tileTextures[i] = FileHandling.load(new File(fileLoctation[i]));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        objectTextures[0] = null;
+        //objectTextures = new BufferedImage[objectVariants];
         try {
-            objectTextures[1] = FileHandling.load(new File(fileLoctation[fileLoctation.length-1]));
+            tileTextures = FileHandling.loadTileSet(fileLoctation, 32, 32);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+//        objectTextures[0] = null;
+//        try {
+//            objectTextures[1] = FileHandling.load(new File(fileLoctation[fileLoctation.length-1]));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
     public static double generateMultipleLayerdNoise(long seed, int x, int y, double frequency, double octaves, double lacunarity, double amplitude, double persistance){
         double multiLayerdNoise = 0;
@@ -65,7 +61,7 @@ public class World {
         }
         return multiLayerdNoise;
     }
-    public WorldObject generateWorldObjects(int x, int y){
+    public WorldObjectChunk generateWorldObjects(int x, int y){
         int[][] chunkTiles = new int[16][16];
         Chunk chunk = getChunk(x,y);
         for (int i = 0; i < 16; i++) {
@@ -73,16 +69,15 @@ public class World {
 
                 int xCord = (x * 16) + j;
                 int yCord = (y * 16) + i;
-                //int randint = random.nextInt(treeSpawnRate);
 
                 double noise = generateMultipleLayerdNoise(seed, xCord, yCord, frequencyBase, octaves, lacunarity, amplitude, persistance);
 
-                if (chunk.getTilesAt(j,i) == 1 && random.nextInt(treeSpawnRate) == 1){
+                if (chunk.getTilesAt(j,i) == 1 && random.nextInt(treeSpawnRate) == 1 && noise < 0.8){
                     chunkTiles[j][i] = 1;
                 }
             }
         }
-        return new WorldObject(objectTextures, chunkTiles);
+        return new WorldObjectChunk(objectTextures, chunkTiles);
     }
     public Chunk generateChunk(int x, int y){
         int[][] chunkTiles = new int[16][16];
@@ -95,53 +90,60 @@ public class World {
 
                 double noise = generateMultipleLayerdNoise(seed, xCord, yCord, frequencyBase, octaves, lacunarity, amplitude, persistance);
 
-                if ( noise < -0.3 ) {
-                    chunkTiles[j][i] = 0;
+                if ( noise < -0.45 ) {
+                    chunkTiles[j][i] = 2;
                 }
-                else if (noise < 0.){
-                    chunkTiles[j][i] = 1;
+                else if (noise < 0.7){
+                    chunkTiles[j][i] = random.nextInt(0,2);
                 }
-                /*else{
-                    chunkTiles[j][i] = random.nextInt(4,6);
-                }*/
             }
         }
 
         return new Chunk(tileTextures, chunkTiles);
     }
+    public void reProcessChunks(){
+        for (String s : chunkMap.keySet()) {
+            
+        }
+    }
     public Chunk getChunk(int chunkX, int chunkY){
         String chunkKey = chunkX + "," + chunkY;
-        if (!chunks.containsKey(chunkKey)) {
-            chunks.put(chunkKey, generateChunk(chunkX, chunkY));
+        if (!chunkMap.containsKey(chunkKey)) {
+            chunkMap.put(chunkKey, generateChunk(chunkX, chunkY));
         }
-        return chunks.get(chunkKey);
+        return chunkMap.get(chunkKey);
     }
-    public WorldObject getWorldObjects(int chunkX, int chunkY){
+    public WorldObjectChunk getWorldObjects(int chunkX, int chunkY){
         String chunkKey = chunkX + "," + chunkY;
-        if (!worldObjects.containsKey(chunkKey)){
-            worldObjects.put(chunkKey, generateWorldObjects(chunkX, chunkY));
+        if (!worldObjectChunkMap.containsKey(chunkKey)){
+            worldObjectChunkMap.put(chunkKey, generateWorldObjects(chunkX, chunkY));
         }
-        return worldObjects.get(chunkKey);
+        return worldObjectChunkMap.get(chunkKey);
     }
-    public void removeObject(int chunkX, int chunkY){
+    public void removeObject(int x, int y){
+        int worldX = x + xOffset;
+        int worldY = y + yOffset;
+        int chunkX = (worldX) / (16 * tileSize);
+        int chunkY = (worldY) / (16 * tileSize);
         String chunkKey = chunkX + "," + chunkY;
-        worldObjects.replace(chunkKey, null);
+        int tileX = ( worldX % (16 * tileSize)) / tileSize;
+        int tileY = ( worldY % (16 * tileSize)) / tileSize;
+        WorldObjectChunk worldObjectChunk = worldObjectChunkMap.get(chunkKey);
     }
     public void renderWorld(Graphics2D g2d){
         int chunkXStart = (xOffset) / (16 * tileSize);
         int chunkYStart = (yOffset) / (16 * tileSize);
 
-        int chunkVisibilityRange = 1;
-
         for (int y = chunkYStart - chunkVisibilityRange; y <= chunkYStart + chunkVisibilityRange; y++) {
             for (int x = chunkXStart - chunkVisibilityRange; x<= chunkXStart + chunkVisibilityRange; x++){
                 Chunk chunk = getChunk(x, y);
-                WorldObject worldObject = getWorldObjects(x,y);
+                //WorldObjectChunk worldObject = getWorldObjects(x,y);
                 int renderX = (x * 16 * tileSize) - xOffset;
                 int renderY = (y * 16 * tileSize) - yOffset;
 
+
                 chunk.renderChunk(g2d, renderX, renderY, tileSize);
-                worldObject.renderObject(g2d, renderX, renderY, tileSize);
+                //worldObject.renderObject(g2d, renderX, renderY, tileSize);
             }
         }
     }

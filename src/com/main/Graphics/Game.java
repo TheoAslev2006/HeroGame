@@ -3,7 +3,7 @@ package com.main.Graphics;
 import com.main.Main;
 import com.main.Utils.Keybindings;
 import com.main.Sprites.Hero;
-import com.main.Utils.MouseController;
+
 import com.main.worldgen.World;
 
 import javax.swing.*;
@@ -16,14 +16,13 @@ public class Game extends JPanel implements Runnable{
     Hero hero;
     Thread thread;
     Keybindings keybindings;
-    MouseController mouseController;
+
     World world;
     int x;
     int y;
     public Game(){
         world = new World(0, 0,56, 100);
         keybindings = new Keybindings();
-        mouseController = new MouseController();
         this.setPreferredSize(Main.dimension);
         this.setBackground(Color.WHITE);
         this.setOpaque(true);
@@ -47,9 +46,7 @@ public class Game extends JPanel implements Runnable{
 
     public void update(){
 
-        if (mouseController.point != null){
-            world.removeObject(1,1);
-        }
+
         if (keybindings.up){
             world.moveWorld(0,-2,2);
         }
@@ -64,7 +61,6 @@ public class Game extends JPanel implements Runnable{
         if (keybindings.left) {
             world.moveWorld(-2,0,2);
         }
-        mouseController.point = null;
         repaint();
     }
     @Override
