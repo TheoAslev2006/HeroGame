@@ -8,15 +8,12 @@ public class Chunk {
     int[][] tile;
     BufferedImage[] tileImage;
     Random random = new Random();
-    public final int CHUNKSIZE = 16;
     public Chunk(BufferedImage[] tileImage, int[][] tile) {
         this.tileImage= tileImage;
         this.tile = tile;
     }
-    public Chunk(BufferedImage[] tileImage, int [][] tile, Chunk[] surroundingChunks){
 
-    }
-    public void renderChunk(Graphics2D g2d, int x, int y, int tileSize){
+    public void renderChunk(Graphics2D g2d, int x, int y, int tileSize, int[] topChunks, int[] bottomChunks, int[] leftChunks, int[] rightChunks, int topRightChunks, int topLeftChunks, int bottomRightChunks, int bottomLeftChunks){
         for (int i = 0; i < tile.length; i++) {
             for (int j = 0; j < tile[i].length; j++) {
 
@@ -24,7 +21,7 @@ public class Chunk {
                 int renderY = y + (j * tileSize);
 
                 if (tile[i][j] == 2){
-                    int texture = setWaterTexture(getSurroundingTiles(tile, i, j));
+                    int texture = setWaterTexture(getSurroundingTiles(tile, i, j, topChunks, bottomChunks, leftChunks, rightChunks, topRightChunks, topLeftChunks, bottomRightChunks, bottomLeftChunks));
                     g2d.drawImage(tileImage[texture], renderX, renderY, tileSize, tileSize, null);
 
                 } else
@@ -35,45 +32,71 @@ public class Chunk {
     public int getTilesAt(int x, int y){
         return tile[x][y];
     }
-    public int[] getSurroundingTiles(int[][] chunkTiles, int x, int y){
+
+    public int[] getSurroundingTiles(int[][] chunkTiles, int x, int y,int[] topChunks, int[] bottomChunks, int[] leftChunks, int[] rightChunks, int topRightChunks, int topLeftChunks, int bottomRightChunks, int bottomLeftChunks){
+
+        int[][] extendedChunkTiles = new int[18][18];
+
+        for (int i = 0; i < chunkTiles.length; i++) {
+            for (int j = 0; j < chunkTiles.length; j++) {
+                extendedChunkTiles[i +1][j + 1] = chunkTiles[i][j];
+            }
+        }
+
+        for (int i = 0; i < topChunks.length; i++) {
+            extendedChunkTiles[0][ i +  1] = topChunks[i];
+        }
+        for (int i = 0; i < bottomChunks.length; i++) {
+            extendedChunkTiles[17][ i +  1] = bottomChunks[i];
+        }
+        for (int i = 0; i < leftChunks.length; i++) {
+            extendedChunkTiles[i + 1][0] = leftChunks[i];
+        }
+        for (int i = 0; i < topChunks.length; i++) {
+            extendedChunkTiles[i + 1][ 17] = rightChunks[i];
+        }
 
         int[]surroundingBlocks = new int[8];
 
-        for (int i = 0; i < surroundingBlocks.length; i++) {
-            surroundingBlocks[i] = -1;
-        }
-
         if (y > 0)
-            surroundingBlocks[0] = chunkTiles[x][y - 1]; // Top
-        if (x < chunkTiles.length - 1 && y > 0)
-            surroundingBlocks[1] = chunkTiles[x + 1][y - 1]; // Top-Right
-        if (x < chunkTiles.length - 1)
-            surroundingBlocks[2] = chunkTiles[x + 1][y]; // Right
-        if (x < chunkTiles.length - 1 && y < chunkTiles[x].length - 1)
-            surroundingBlocks[3] = chunkTiles[x + 1][y + 1]; // Bottom-Right
-        if (y < chunkTiles[x].length - 1)
-            surroundingBlocks[4] = chunkTiles[x][y + 1]; // Bottom
-        if (x > 0 && y < chunkTiles[x].length - 1)
-            surroundingBlocks[5] = chunkTiles[x - 1][y + 1]; // Bottom-Left
+            surroundingBlocks[0] = extendedChunkTiles[x][y - 1]; // Top
+        if (x < extendedChunkTiles.length - 1 && y > 0)
+            surroundingBlocks[1] = extendedChunkTiles[x + 1][y - 1]; // Top-Right
+        if (x < extendedChunkTiles.length - 1)
+            surroundingBlocks[2] = extendedChunkTiles[x + 1][y]; // Right
+        if (x < extendedChunkTiles.length - 1 && y < chunkTiles[x].length - 1)
+            surroundingBlocks[3] = extendedChunkTiles[x + 1][y + 1]; // Bottom-Right
+        if (y < extendedChunkTiles[x].length - 1)
+            surroundingBlocks[4] = extendedChunkTiles[x][y + 1]; // Bottom
+        if (x > 0 && y < extendedChunkTiles[x].length - 1)
+            surroundingBlocks[5] = extendedChunkTiles[x - 1][y + 1]; // Bottom-Left
         if (x > 0)
-            surroundingBlocks[6] = chunkTiles[x - 1][y]; // Left
+            surroundingBlocks[6] = extendedChunkTiles[x - 1][y]; // Left
         if (x > 0 && y > 0)
-            surroundingBlocks[7] = chunkTiles[x - 1][y - 1]; // Top-Left
+            surroundingBlocks[7] = extendedChunkTiles[x - 1][y - 1]; // Top-Left
 
-
-
+        /*
+        surroundingBlocks[0] = extendedChunkTiles[x - 1][y- 1];
+        surroundingBlocks[1] = extendedChunkTiles[x][y - 1];
+        surroundingBlocks[2] = extendedChunkTiles[x + 1][ y- 1];
+        surroundingBlocks[3] = extendedChunkTiles[x-1][y];
+        surroundingBlocks[4] = extendedChunkTiles[x + 1][y];
+        surroundingBlocks[5] = extendedChunkTiles[x- 1][y + 1];
+        surroundingBlocks[6] = extendedChunkTiles[x][y + 1];
+        surroundingBlocks[7] = extendedChunkTiles[x + 1][y + 1];
+        */
         return surroundingBlocks;
     }
     public int setWaterTexture(int[] surroundingBlocks){
 
-        boolean top = (surroundingBlocks[0] == 2);
-        boolean topRight = (surroundingBlocks[1] == 2);
-        boolean right = (surroundingBlocks[2] == 2);
-        boolean bottomRight = (surroundingBlocks[3] == 2);
-        boolean bottom = (surroundingBlocks[4] == 2);
+        boolean topLeft = (surroundingBlocks[0] == 2);
+        boolean top = (surroundingBlocks[1] == 2);
+        boolean topRight = (surroundingBlocks[2] == 2);
+        boolean left = (surroundingBlocks[3] == 2);
+        boolean right = (surroundingBlocks[4] == 2);
         boolean bottomLeft = (surroundingBlocks[5] == 2);
-        boolean left = (surroundingBlocks[6] == 2);
-        boolean topLeft = (surroundingBlocks[7] == 2);
+        boolean bottom = (surroundingBlocks[6] == 2);
+        boolean bottomRight = (surroundingBlocks[7] == 2);
 
 
         if (top && bottom && left && right && topLeft && topRight && bottomLeft && bottomRight) {

@@ -141,8 +141,45 @@ public class World {
                 int renderX = (x * 16 * tileSize) - xOffset;
                 int renderY = (y * 16 * tileSize) - yOffset;
 
+                int[] topNearChunks = new int[16];
+                int[] bottomNearChunks = new int[16];
+                int[] leftNearChunks = new int[16];
+                int[] rightNearChunks = new int[16];
+                int topLeftChunk = 0;
+                int topRightChunk = 0;
+                int bottomLeftChunk = 0;
+                int bottomRightChunk = 0;
 
-                chunk.renderChunk(g2d, renderX, renderY, tileSize);
+                int[][] extendedChunk = new int[18][18];
+                double noise = generateMultipleLayerdNoise(seed, renderX-1, renderY-1, frequencyBase, octaves, lacunarity, amplitude, persistance);
+                for (int i = 0; i < extendedChunk.length; i++) {
+                    for (int j = 0; j < extendedChunk.length; j++) {
+                        if (noise < -0.45)
+                            extendedChunk[i][j]  = 2;
+                        if (noise < 0.7){
+                            extendedChunk[i][j] = 1;
+                        }
+                    }
+                }
+
+                topLeftChunk = extendedChunk[0][0];
+                topRightChunk = extendedChunk[17][17];
+                bottomLeftChunk = extendedChunk[0][17];
+                bottomRightChunk = extendedChunk[17][0];
+                for (int i = 0; i < topNearChunks.length; i++) {
+                    topNearChunks[i] = extendedChunk[0][ i + 1];
+                }
+                for (int i = 0; i < bottomNearChunks.length; i++) {
+                    bottomNearChunks[i] = extendedChunk[17][ i + 1];
+                }
+                for (int i = 0; i < leftNearChunks.length; i++) {
+                    leftNearChunks[i] = extendedChunk[i + 1][0];
+                }
+                for (int i = 0; i < rightNearChunks.length; i++) {
+                    rightNearChunks[i] = extendedChunk[i + 1][17];
+                }
+
+                chunk.renderChunk(g2d, renderX, renderY, tileSize, topNearChunks, bottomNearChunks, leftNearChunks, rightNearChunks, topRightChunk, topLeftChunk, bottomRightChunk, bottomLeftChunk);
                 //worldObject.renderObject(g2d, renderX, renderY, tileSize);
             }
         }
