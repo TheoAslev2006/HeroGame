@@ -79,8 +79,8 @@ public class World {
         }
         return new WorldObjectChunk(objectTextures, chunkTiles);
     }
-    public Chunk generateChunk(int x, int y){
-        int[][] chunkTiles = new int[16][16];
+    public Chunk generateChunk(int x, int y, int width, int height){
+        int[][] chunkTiles = new int[width][height];
 
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
@@ -101,15 +101,11 @@ public class World {
 
         return new Chunk(tileTextures, chunkTiles);
     }
-    public void reProcessChunks(){
-        for (String s : chunkMap.keySet()) {
-            
-        }
-    }
     public Chunk getChunk(int chunkX, int chunkY){
         String chunkKey = chunkX + "," + chunkY;
         if (!chunkMap.containsKey(chunkKey)) {
-            chunkMap.put(chunkKey, generateChunk(chunkX, chunkY));
+            Chunk generatedChunk = generateChunk(chunkX, chunkY, 16, 16);
+            chunkMap.put(chunkKey, generatedChunk);
         }
         return chunkMap.get(chunkKey);
     }
@@ -137,49 +133,54 @@ public class World {
         for (int y = chunkYStart - chunkVisibilityRange; y <= chunkYStart + chunkVisibilityRange; y++) {
             for (int x = chunkXStart - chunkVisibilityRange; x<= chunkXStart + chunkVisibilityRange; x++){
                 Chunk chunk = getChunk(x, y);
-                //WorldObjectChunk worldObject = getWorldObjects(x,y);
+//                WorldObjectChunk worldObject = getWorldObjects(x,y);
                 int renderX = (x * 16 * tileSize) - xOffset;
                 int renderY = (y * 16 * tileSize) - yOffset;
 
-                int[] topNearChunks = new int[16];
-                int[] bottomNearChunks = new int[16];
-                int[] leftNearChunks = new int[16];
-                int[] rightNearChunks = new int[16];
-                int topLeftChunk = 0;
-                int topRightChunk = 0;
-                int bottomLeftChunk = 0;
-                int bottomRightChunk = 0;
+                Chunk topChunk = getChunk(x, y - 1);
+                Chunk bottomChunk = getChunk(x, y + 1);
+                Chunk leftChunk = getChunk(x - 1, y);
+                Chunk rightChunk = getChunk(x + 1, y);
+                Chunk topLeftChunk = getChunk(x - 1, y - 1);
+                Chunk topRightChunk = getChunk(x + 1, y - 1);
+                Chunk bottomLeftChunk = getChunk(x - 1, y + 1);
+                Chunk bottomRightChunk = getChunk(x + 1, y + 1);
 
-                int[][] extendedChunk = new int[18][18];
-                double noise = generateMultipleLayerdNoise(seed, renderX-1, renderY-1, frequencyBase, octaves, lacunarity, amplitude, persistance);
-                for (int i = 0; i < extendedChunk.length; i++) {
-                    for (int j = 0; j < extendedChunk.length; j++) {
-                        if (noise < -0.45)
-                            extendedChunk[i][j]  = 2;
-                        if (noise < 0.7){
-                            extendedChunk[i][j] = 1;
-                        }
-                    }
-                }
+                int[] topChunkRow = topChunk != null ? topChunk.getBottomRow(): new int[16];
+                int[] bottomChunkRow = bottomChunk != null ? bottomChunk.getTopRow(): new int[16];
+                int[] rightChunkRow = rightChunk != null ?  rightChunk.getLeftRow(): new int[16];
+                int[] leftChunkRow = leftChunk!=null ? leftChunk.getRightRow(): new int[16];
 
-                topLeftChunk = extendedChunk[0][0];
-                topRightChunk = extendedChunk[17][17];
-                bottomLeftChunk = extendedChunk[0][17];
-                bottomRightChunk = extendedChunk[17][0];
-                for (int i = 0; i < topNearChunks.length; i++) {
-                    topNearChunks[i] = extendedChunk[0][ i + 1];
-                }
-                for (int i = 0; i < bottomNearChunks.length; i++) {
-                    bottomNearChunks[i] = extendedChunk[17][ i + 1];
-                }
-                for (int i = 0; i < leftNearChunks.length; i++) {
-                    leftNearChunks[i] = extendedChunk[i + 1][0];
-                }
-                for (int i = 0; i < rightNearChunks.length; i++) {
-                    rightNearChunks[i] = extendedChunk[i + 1][17];
-                }
+                int topLeftChunkTile = (topLeftChunk != null) ? topLeftChunk.getTilesAt(15,15): 0;
+                int topRightChunkTile = (topRightChunk != null) ? topRightChunk.getTilesAt(0,15) : 0;
+                int bottomLeftChunkTile = (bottomLeftChunk != null) ? bottomLeftChunk.getTilesAt(0,0): 0;
+                int bottomRightChunkTile = (bottomRightChunk != null) ? bottomRightChunk.getTilesAt(15,0): 0;
+//                Chunk extendedChunk= generateChunk(chunkXStart - 16, chunkYStart - 16, 18, 18);
+//                int[][] extendedChunkTiles = extendedChunk.tile;
+//                int[] topChunkRow = new int[16];
+//                int[] bottomChunkRow = new int[16];
+//                int[] leftChunkRow = new int[16];
+//                int[] rightChunkRow = new int[16];
+//
+//                int topLeftChunkTile = extendedChunkTiles[0][0];
+//                int topRightChunkTile = extendedChunkTiles[17][0];
+//                int bottomLeftChunkTile = extendedChunkTiles[0][17];
+//                int bottomRightChunkTile = extendedChunkTiles[17][17];
+//
+//                for (int i = 0; i < topChunkRow.length; i++) {
+//                    topChunkRow[i] = extendedChunkTiles[0][i + 1];
+//                }
+//                for (int i = 0; i < bottomChunkRow.length; i++) {
+//                    bottomChunkRow[i] = extendedChunkTiles[17][i + 1];
+//                }
+//                for (int i = 0; i < rightChunkRow.length; i++) {
+//                    rightChunkRow[i] = extendedChunkTiles[i + 1][0];
+//                }
+//                for (int i = 0; i < leftChunkRow.length; i++) {
+//                    leftChunkRow[i] = extendedChunkTiles[i + 1][17];
+//                }
 
-                chunk.renderChunk(g2d, renderX, renderY, tileSize, topNearChunks, bottomNearChunks, leftNearChunks, rightNearChunks, topRightChunk, topLeftChunk, bottomRightChunk, bottomLeftChunk);
+                chunk.renderChunk(g2d, renderX, renderY, tileSize, topChunkRow, bottomChunkRow, leftChunkRow, rightChunkRow, topRightChunkTile, topLeftChunkTile, bottomRightChunkTile, bottomLeftChunkTile);
                 //worldObject.renderObject(g2d, renderX, renderY, tileSize);
             }
         }
