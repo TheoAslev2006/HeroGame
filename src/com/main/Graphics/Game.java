@@ -70,6 +70,7 @@ public class Game extends JPanel implements Runnable{
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         world.renderWorld(g2d);
+        world.renderTrees(g2d);
         hero.draw(g2d);
         g2d.dispose();
     }

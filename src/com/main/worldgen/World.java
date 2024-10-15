@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class World {
-    public static final double frequencyBase = 1.0/250 ;
+    public static final double frequencyBase = 1.0/100 ;
     public static final double lacunarity = 1.5;
     public static final double persistance = 0.4;
     public static final double amplitude = 1.0;
@@ -52,7 +52,7 @@ public class World {
         }
         return multiLayerdNoise;
     }
-    public Tree generateTree(int x, int y){
+    public Tree generateTree(int x, int y, Chunk chunk){
         double noise = generateMultipleLayerdNoise(seed, x, y, frequencyBase, octaves, lacunarity, amplitude,  persistance);
         if (noise > -0.3 && chunk.tile[x][y] < 2){
             return new Tree(x, y);
@@ -62,7 +62,7 @@ public class World {
     public Tree getTree(int x, int y){
         String treekey = x + "," + y;
         if (!treeMap.containsKey(treekey)){
-            Tree tree = generateTree(x, y);
+            Tree tree = generateTree(x, y, getChunk(x / (16*32), y / (16*32)));
             treeMap.put(treekey, tree);
         }
         return treeMap.get(treekey);
@@ -100,17 +100,17 @@ public class World {
         }
         return chunkMap.get(chunkKey);
     }
-    public WorldObjectChunk getWorldObjects(int chunkX, int chunkY){
+//    public WorldObjectChunk getWorldObjects(int chunkX, int chunkY){
 //        String chunkKey = chunkX + "," + chunkY;
 //        if (!worldObjectChunkMap.containsKey(chunkKey)){
 //            worldObjectChunkMap.put(chunkKey, generateWorldObjects(chunkX, chunkY));
 //        }
 //        return worldObjectChunkMap.get(chunkKey);
-    }
-    public void removeObject(int x, int y){
-        WorldObjectChunk worldObjectChunk = getWorldObjects(x,y);
-        worldObjectChunk.tile[x][y] = 0;
-    }
+//    }
+//    public void removeObject(int x, int y){
+//        WorldObjectChunk worldObjectChunk = getWorldObjects(x,y);
+//        worldObjectChunk.tile[x][y] = 0;
+//    }
 
     public void renderWorld(Graphics2D g2d){
         int chunkXStart = (xOffset) / (16 * tileSize);
