@@ -93,7 +93,10 @@ public class World {
                 if ( noise < -0.45 ) {
                     chunkTiles[j][i] = 2;
                 }
-                else if (noise < 0.7){
+                else if (noise == -0.45){
+                    chunkTiles[j][i] = 3;
+                }
+                else{
                     chunkTiles[j][i] = random.nextInt(0,2);
                 }
             }
@@ -126,6 +129,7 @@ public class World {
         int tileY = ( worldY % (16 * tileSize)) / tileSize;
         WorldObjectChunk worldObjectChunk = worldObjectChunkMap.get(chunkKey);
     }
+
     public void renderWorld(Graphics2D g2d){
         int chunkXStart = (xOffset) / (16 * tileSize);
         int chunkYStart = (yOffset) / (16 * tileSize);
@@ -137,50 +141,9 @@ public class World {
                 int renderX = (x * 16 * tileSize) - xOffset;
                 int renderY = (y * 16 * tileSize) - yOffset;
 
-                Chunk topChunk = getChunk(x, y - 1);
-                Chunk bottomChunk = getChunk(x, y + 1);
-                Chunk leftChunk = getChunk(x - 1, y);
-                Chunk rightChunk = getChunk(x + 1, y);
-                Chunk topLeftChunk = getChunk(x - 1, y - 1);
-                Chunk topRightChunk = getChunk(x + 1, y - 1);
-                Chunk bottomLeftChunk = getChunk(x - 1, y + 1);
-                Chunk bottomRightChunk = getChunk(x + 1, y + 1);
 
-                int[] topChunkRow = topChunk != null ? topChunk.getBottomRow(): new int[16];
-                int[] bottomChunkRow = bottomChunk != null ? bottomChunk.getTopRow(): new int[16];
-                int[] rightChunkRow = rightChunk != null ?  rightChunk.getLeftRow(): new int[16];
-                int[] leftChunkRow = leftChunk!=null ? leftChunk.getRightRow(): new int[16];
 
-                int topLeftChunkTile = (topLeftChunk != null) ? topLeftChunk.getTilesAt(15,15): 0;
-                int topRightChunkTile = (topRightChunk != null) ? topRightChunk.getTilesAt(0,15) : 0;
-                int bottomLeftChunkTile = (bottomLeftChunk != null) ? bottomLeftChunk.getTilesAt(0,0): 0;
-                int bottomRightChunkTile = (bottomRightChunk != null) ? bottomRightChunk.getTilesAt(15,0): 0;
-//                Chunk extendedChunk= generateChunk(chunkXStart - 16, chunkYStart - 16, 18, 18);
-//                int[][] extendedChunkTiles = extendedChunk.tile;
-//                int[] topChunkRow = new int[16];
-//                int[] bottomChunkRow = new int[16];
-//                int[] leftChunkRow = new int[16];
-//                int[] rightChunkRow = new int[16];
-//
-//                int topLeftChunkTile = extendedChunkTiles[0][0];
-//                int topRightChunkTile = extendedChunkTiles[17][0];
-//                int bottomLeftChunkTile = extendedChunkTiles[0][17];
-//                int bottomRightChunkTile = extendedChunkTiles[17][17];
-//
-//                for (int i = 0; i < topChunkRow.length; i++) {
-//                    topChunkRow[i] = extendedChunkTiles[0][i + 1];
-//                }
-//                for (int i = 0; i < bottomChunkRow.length; i++) {
-//                    bottomChunkRow[i] = extendedChunkTiles[17][i + 1];
-//                }
-//                for (int i = 0; i < rightChunkRow.length; i++) {
-//                    rightChunkRow[i] = extendedChunkTiles[i + 1][0];
-//                }
-//                for (int i = 0; i < leftChunkRow.length; i++) {
-//                    leftChunkRow[i] = extendedChunkTiles[i + 1][17];
-//                }
-
-                chunk.renderChunk(g2d, renderX, renderY, tileSize, topChunkRow, bottomChunkRow, leftChunkRow, rightChunkRow, topRightChunkTile, topLeftChunkTile, bottomRightChunkTile, bottomLeftChunkTile);
+                chunk.renderChunk(g2d, renderX, renderY, tileSize);
                 //worldObject.renderObject(g2d, renderX, renderY, tileSize);
             }
         }
