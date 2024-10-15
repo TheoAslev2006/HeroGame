@@ -7,7 +7,7 @@ import java.util.Random;
 public class Chunk {
     int[][] tile;
     BufferedImage[] tileImage;
-    Random random = new Random();
+
 
     public Chunk(BufferedImage[] tileImage, int[][] tile) {
         this.tileImage = tileImage;
@@ -23,11 +23,10 @@ public class Chunk {
                 int renderX = x + (i * tileSize);
                 int renderY = y + (j * tileSize);
 
-
                 g2d.drawImage(tileImage[tile[i][j]], renderX, renderY, tileSize, tileSize, null);
                 g2d.setColor(Color.gray);
-//                g2d.drawLine(renderX, renderY, renderX, renderY + 32*16);
-//                g2d.drawLine(renderX, renderY, renderX + 16*32, renderY);
+                g2d.drawLine(renderX, renderY, renderX, renderY + 32*16);
+                g2d.drawLine(renderX, renderY, renderX + 16*32, renderY);
             }
         }
     }

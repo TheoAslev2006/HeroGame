@@ -16,10 +16,11 @@ public class Game extends JPanel implements Runnable{
     Hero hero;
     Thread thread;
     Keybindings keybindings;
-
     World world;
     int x;
     int y;
+    int speed;
+    boolean walking;
     public Game(){
         world = new World(0, 0,56, 100);
         keybindings = new Keybindings();
@@ -51,6 +52,7 @@ public class Game extends JPanel implements Runnable{
             world.moveWorld(0,-2,2);
         }
         if (keybindings.down){
+
             world.moveWorld(0,2,2);
         }
 
@@ -69,7 +71,7 @@ public class Game extends JPanel implements Runnable{
         Graphics2D g2d = (Graphics2D) g;
         world.renderWorld(g2d);
         hero.draw(g2d);
-
+        g2d.dispose();
     }
 
     @Override

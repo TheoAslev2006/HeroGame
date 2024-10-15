@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -17,36 +18,27 @@ public class World {
     public static final double persistance = 0.4;
     public static final double amplitude = 1.0;
     public static final double octaves = 3;
-    public static int treeSpawnRate = 10;
-    int chunkVisibilityRange = 1;
+    public static int treeSpawnRate = 15;
+    int chunkVisibilityRange = 2;
     int xOffset;
     int yOffset;
     HashMap<String, Chunk> chunkMap = new HashMap<>();
-    HashMap<String, WorldObjectChunk> worldObjectChunkMap = new HashMap<>();
+    HashMap<String, Tree> treeMap = new HashMap<>();
     BufferedImage[] tileTextures;
-    BufferedImage[] objectTextures;
     int tileVariants = 22;
     int objectVariants = 2;
-    int width;
-    int height;
     int tileSize = Game.textureTileSize;
     public static final long seed =10000;
     Random random = new Random(seed);
     public World(int x, int y, int height, int width){
-        final String fileLoctation = "src\\Resource\\Textures\\WorldBuilding\\groundtileset.png";
+        final String tileFileLoctation = "src\\Resource\\Textures\\WorldBuilding\\groundtileset.png";
+        final String objectFileLocation = "src\\Resource\\Textures\\WorldObjects\\Tree.png";
         tileTextures = new BufferedImage[tileVariants];
-        //objectTextures = new BufferedImage[objectVariants];
         try {
-            tileTextures = FileHandling.loadTileSet(fileLoctation, 32, 32);
+            tileTextures = FileHandling.loadTileSet(tileFileLoctation, 32, 32);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-//        objectTextures[0] = null;
-//        try {
-//            objectTextures[1] = FileHandling.load(new File(fileLoctation[fileLoctation.length-1]));
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
     }
     public static double generateMultipleLayerdNoise(long seed, int x, int y, double frequency, double octaves, double lacunarity, double amplitude, double persistance){
         double multiLayerdNoise = 0;
@@ -60,23 +52,20 @@ public class World {
         }
         return multiLayerdNoise;
     }
-    public WorldObjectChunk generateWorldObjects(int x, int y){
-        int[][] chunkTiles = new int[16][16];
-        Chunk chunk = getChunk(x,y);
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-
-                int xCord = (x * 16) + j;
-                int yCord = (y * 16) + i;
-
-                double noise = generateMultipleLayerdNoise(seed, xCord, yCord, frequencyBase, octaves, lacunarity, amplitude, persistance);
-
-                if (chunk.getTilesAt(j,i) == 1 && random.nextInt(treeSpawnRate) == 1 && noise < 0.8){
-                    chunkTiles[j][i] = 1;
-                }
-            }
+    public Tree generateTree(int x, int y){
+        double noise = generateMultipleLayerdNoise(seed, x, y, frequencyBase, octaves, lacunarity, amplitude,  persistance);
+        if (noise > -0.3 && chunk.tile[x][y] < 2){
+            return new Tree(x, y);
         }
-        return new WorldObjectChunk(objectTextures, chunkTiles);
+        return null;
+    }
+    public Tree getTree(int x, int y){
+        String treekey = x + "," + y;
+        if (!treeMap.containsKey(treekey)){
+            Tree tree = generateTree(x, y);
+            treeMap.put(treekey, tree);
+        }
+        return treeMap.get(treekey);
     }
     public Chunk generateChunk(int x, int y, int width, int height){
         int[][] chunkTiles = new int[width][height];
@@ -112,21 +101,15 @@ public class World {
         return chunkMap.get(chunkKey);
     }
     public WorldObjectChunk getWorldObjects(int chunkX, int chunkY){
-        String chunkKey = chunkX + "," + chunkY;
-        if (!worldObjectChunkMap.containsKey(chunkKey)){
-            worldObjectChunkMap.put(chunkKey, generateWorldObjects(chunkX, chunkY));
-        }
-        return worldObjectChunkMap.get(chunkKey);
+//        String chunkKey = chunkX + "," + chunkY;
+//        if (!worldObjectChunkMap.containsKey(chunkKey)){
+//            worldObjectChunkMap.put(chunkKey, generateWorldObjects(chunkX, chunkY));
+//        }
+//        return worldObjectChunkMap.get(chunkKey);
     }
     public void removeObject(int x, int y){
-        int worldX = x + xOffset;
-        int worldY = y + yOffset;
-        int chunkX = (worldX) / (16 * tileSize);
-        int chunkY = (worldY) / (16 * tileSize);
-        String chunkKey = chunkX + "," + chunkY;
-        int tileX = ( worldX % (16 * tileSize)) / tileSize;
-        int tileY = ( worldY % (16 * tileSize)) / tileSize;
-        WorldObjectChunk worldObjectChunk = worldObjectChunkMap.get(chunkKey);
+        WorldObjectChunk worldObjectChunk = getWorldObjects(x,y);
+        worldObjectChunk.tile[x][y] = 0;
     }
 
     public void renderWorld(Graphics2D g2d){
@@ -136,14 +119,23 @@ public class World {
         for (int y = chunkYStart - chunkVisibilityRange; y <= chunkYStart + chunkVisibilityRange; y++) {
             for (int x = chunkXStart - chunkVisibilityRange; x<= chunkXStart + chunkVisibilityRange; x++){
                 Chunk chunk = getChunk(x, y);
-                //WorldObjectChunk worldObject = getWorldObjects(x,y);
                 int renderX = (x * 16 * tileSize) - xOffset;
                 int renderY = (y * 16 * tileSize) - yOffset;
 
-
-
                 chunk.renderChunk(g2d, renderX, renderY, tileSize);
-                //worldObject.renderObject(g2d, renderX, renderY, tileSize);
+            }
+        }
+    }
+    public void renderTrees(Graphics2D g2d){
+        int treeXStart = xOffset / 32;
+        int treeYStart = yOffset / 32;
+        for (int y = 0; y < treeYStart - chunkVisibilityRange; y++) {
+            for (int x = 0; x < treeXStart - chunkVisibilityRange; x++) {
+                Tree tree = getTree(x, y);
+                int renderX = x * 32 - xOffset;
+                int renderY = y * 32 - yOffset;
+
+                tree.renderTree(g2d, renderX, renderY);
             }
         }
     }
