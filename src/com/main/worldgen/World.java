@@ -12,11 +12,11 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class World {
-    public static double frequencyBase = 1.0/100 ;
-    public static double lacunarity = 2;
-    public static double persistance = 0.4;
-    public static double amplitude = 1.0;
-    public static double octaves = 5;
+    public static final double frequencyBase = 1.0/250 ;
+    public static final double lacunarity = 1.5;
+    public static final double persistance = 0.4;
+    public static final double amplitude = 1.0;
+    public static final double octaves = 3;
     public static int treeSpawnRate = 10;
     int chunkVisibilityRange = 1;
     int xOffset;
@@ -33,8 +33,7 @@ public class World {
     public static final long seed =10000;
     Random random = new Random(seed);
     public World(int x, int y, int height, int width){
-        final String fileLoctation = "src\\Resource\\Textures\\WorldBuilding\\WaterGroundTileSet.png";
-
+        final String fileLoctation = "src\\Resource\\Textures\\WorldBuilding\\groundtileset.png";
         tileTextures = new BufferedImage[tileVariants];
         //objectTextures = new BufferedImage[objectVariants];
         try {
@@ -91,10 +90,10 @@ public class World {
                 double noise = generateMultipleLayerdNoise(seed, xCord, yCord, frequencyBase, octaves, lacunarity, amplitude, persistance);
 
                 if ( noise < -0.45 ) {
-                    chunkTiles[j][i] = 2;
+                    chunkTiles[j][i] = random.nextInt(2,4);
                 }
-                else if (noise == -0.45){
-                    chunkTiles[j][i] = 3;
+                else if (noise < -0.4){
+                    chunkTiles[j][i] = 4;
                 }
                 else{
                     chunkTiles[j][i] = random.nextInt(0,2);
@@ -137,7 +136,7 @@ public class World {
         for (int y = chunkYStart - chunkVisibilityRange; y <= chunkYStart + chunkVisibilityRange; y++) {
             for (int x = chunkXStart - chunkVisibilityRange; x<= chunkXStart + chunkVisibilityRange; x++){
                 Chunk chunk = getChunk(x, y);
-//                WorldObjectChunk worldObject = getWorldObjects(x,y);
+                //WorldObjectChunk worldObject = getWorldObjects(x,y);
                 int renderX = (x * 16 * tileSize) - xOffset;
                 int renderY = (y * 16 * tileSize) - yOffset;
 

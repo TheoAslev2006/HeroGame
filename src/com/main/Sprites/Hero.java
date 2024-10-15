@@ -18,7 +18,7 @@ public class Hero{
 
     BufferedImage bufferedImage;
     public Hero(){
-        File file = new File("src\\Resource\\Textures\\Sprites\\Sprite.png");
+        File file = new File("src\\Resource\\Textures\\Sprites\\CoolerSprite.png");
         try {
             bufferedImage = FileHandling.load(file);
         } catch (Exception e) {
