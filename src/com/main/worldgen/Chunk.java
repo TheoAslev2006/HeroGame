@@ -15,8 +15,7 @@ public class Chunk {
     }
 
     public void renderChunk(Graphics2D g2d, int x, int y, int tileSize){
-        g2d.drawLine(x, y, x, y + 32 * 16);
-        g2d.drawLine(x, y, x + 16 * 32, y);
+
         for (int i = 0; i < tile.length; i++) {
             for (int j = 0; j < tile[i].length; j++) {
 
@@ -24,9 +23,7 @@ public class Chunk {
                 int renderY = y + (j * tileSize);
 
                 g2d.drawImage(tileImage[tile[i][j]], renderX, renderY, tileSize, tileSize, null);
-                g2d.setColor(Color.gray);
-                g2d.drawLine(renderX, renderY, renderX, renderY + 32*16);
-                g2d.drawLine(renderX, renderY, renderX + 16*32, renderY);
+
             }
         }
     }

@@ -19,7 +19,7 @@ public class Game extends JPanel implements Runnable{
     World world;
     int x;
     int y;
-    int speed;
+    int speed = 1;
     boolean walking;
     public Game(){
         world = new World(0, 0,56, 100);
@@ -44,24 +44,26 @@ public class Game extends JPanel implements Runnable{
             thread = null;
         }
     }
-
+    public void printFps(Graphics2D g2d, String string){
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 20));
+        g2d.drawString(string, 50, 50);
+    }
     public void update(){
 
-
         if (keybindings.up){
-            world.moveWorld(0,-2,2);
+            world.moveWorld(0,-2,speed);
         }
         if (keybindings.down){
 
-            world.moveWorld(0,2,2);
+            world.moveWorld(0,2,speed);
         }
 
         if (keybindings.right){
-            world.moveWorld(2,0,2);
+            world.moveWorld(2,0,speed);
         }
 
         if (keybindings.left) {
-            world.moveWorld(-2,0,2);
+            world.moveWorld(-2,0,speed);
         }
         repaint();
     }
@@ -77,13 +79,31 @@ public class Game extends JPanel implements Runnable{
 
     @Override
     public void run() {
+
+        int frames = 0;
+        double secondsUP = 0;
+        long previousTime = System.nanoTime();
+        double secondsPerTick = 1 / 60.0;
+        int tickCount = 0;
+
         while (thread!=null){
-            update();
-            try {
-                Thread.sleep(16);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            long currentTime = System.nanoTime();
+            long passedTime = currentTime - previousTime;
+            previousTime = currentTime;
+            secondsUP += passedTime / 1_000_000_000.0;
+
+            while (secondsUP >= secondsPerTick){
+                update();
+                secondsUP -= secondsPerTick;
+
+                tickCount++;
+                if (tickCount % 120 == 0){
+                    System.out.println(frames);
+                    frames = 0;
+                }
             }
+            repaint();
+            frames++;
         }
     }
 }
