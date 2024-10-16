@@ -15,7 +15,8 @@ public class Hero{
     int height = 16;
     int x = Game.WIDTH/2 + width/2;
     int y = Game.HEIGHT/2 + height/2;
-
+    int hunger;
+    int thirst;
     BufferedImage bufferedImage;
     public Hero(){
         File file = new File("src\\Resource\\Textures\\Sprites\\CoolerSprite.png");
@@ -24,7 +25,6 @@ public class Hero{
         } catch (Exception e) {
             System.out.println("Image is not readable");
         }
-
     }
     public void draw(Graphics2D g2d){
         g2d.drawImage(bufferedImage, x, y, null);

@@ -8,11 +8,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-public class World {
+public class World{
     public static final double frequencyBase = 1.0/250 ;
     public static final double lacunarity = 1.5;
     public static final double persistance = 0.4;
@@ -20,10 +21,10 @@ public class World {
     public static final double octaves = 3;
     public static int treeSpawnRate = 25;
     int chunkVisibilityRange = 2;
-    int xOffset;
-    int yOffset;
-    HashMap<String, Chunk> chunkMap = new HashMap<>();
-    HashMap<String, Tree> treeMap = new HashMap<>();
+    public int xOffset;
+    public int yOffset;
+    public HashMap<String, Chunk> chunkMap = new HashMap<>();
+    public HashMap<String, Tree> treeMap = new HashMap<>();
     BufferedImage[] tileTextures;
     BufferedImage[] treeTextures;
     int tileVariants = 22;
@@ -63,18 +64,28 @@ public class World {
         double noise = generateMultipleLayerdNoise(seed, x, y, frequencyBase, octaves, lacunarity, amplitude,  persistance);
         double treeNoise = generateMultipleLayerdNoise(1,  x / 10, y / 10, frequencyBase/10, octaves/2, lacunarity/2, amplitude/2, persistance/2);
         Random randomPlacement = new Random(seed);
-        if (noise > -0.3){
-            if (random.nextInt(100) < 10) {
+        if (noise > -0.4){
+            if (random.nextInt(100) < 2){
+                return new Tree(x,y,treeTextures);
+            }
+        }
+        if (noise > 0){
+            if (random.nextInt(100) < 30) {
                 return new Tree(x, y, treeTextures);
             }
         }
         return null;
     }
-    public Tree getTree(int x, int y){
+    public Tree getTree(int x, int y, boolean createNew){
         String treekey = x + "," + y;
         if (!treeMap.containsKey(treekey)){
-            Tree tree = generateTree(x, y, getChunk(x, y));
-            treeMap.put(treekey, tree);
+            if (createNew){
+                Tree tree = generateTree(x, y, getChunk(x, y));
+                treeMap.put(treekey, tree);
+            }else
+            {
+                return null;
+            }
         }
         return treeMap.get(treekey);
     }
@@ -95,8 +106,12 @@ public class World {
                 else if (noise < -0.4){
                     chunkTiles[j][i] = 4;
                 }
-                else{
+                else if (noise < -0.02){
+                    chunkTiles[j][i] = 1;
+                }else if(noise < 0){
                     chunkTiles[j][i] = random.nextInt(0,2);
+                }else {
+                    chunkTiles[j][i] = 0;
                 }
             }
         }
@@ -126,28 +141,38 @@ public class World {
             }
         }
     }
-    public void renderTrees(Graphics2D g2d){
+    public void renderTrees(Graphics2D g2d) {
         int treeXStart = (xOffset + 32 * 32) / 32;
         int treeYStart = (yOffset + 32 * 32) / 32;
-        for (int y = treeYStart - chunkVisibilityRange * 32; y <= treeYStart ; y++) {
+        for (int y = treeYStart - chunkVisibilityRange * 32; y <= treeYStart; y++) {
             for (int x = treeXStart - chunkVisibilityRange * 32; x <= treeXStart; x++) {
 
-                Tree tree = getTree(x, y);
-                if(tree != null) {
+                Tree tree = getTree(x, y, true);
+
+                if (tree != null) {
                     int renderX = x * 32 - xOffset;
                     int renderY = y * 32 - yOffset;
                     tree.renderTree(g2d, renderX, renderY);
+
                 }
             }
         }
     }
-    public void moveWorld(int vectorX, int vectorY, int speed){
+        public void moveWorld(int vectorX, int vectorY, int speed){
+//        Tree[] trees = new Tree[4];
+//        trees[0] = getTree(xOffset + (vectorX * speed), yOffset, false);
+//        trees[1] = getTree(xOffset - (vectorX * speed), yOffset, false);
+//        trees[2] = getTree(xOffset, yOffset  + (vectorX * speed), false);
+//        trees[3] = getTree(xOffset, yOffset  - (vectorX * speed), false);
+            if (vectorX != 0) {
+//            if (trees[0] == null)
+                xOffset += (vectorX * speed);
+            }
+            if (vectorY != 0) {
+//            if (trees[2] == null || trees[3] == null)
+                yOffset += (vectorY * speed);
+            }
+        }
 
-        if (vectorX != 0) {
-            xOffset += (int) (vectorX * speed);
-        }
-        if (vectorY != 0) {
-            yOffset += (int) (vectorY * speed);
-        }
-    }
 }
+

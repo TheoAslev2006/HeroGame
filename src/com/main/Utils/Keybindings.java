@@ -20,23 +20,23 @@ public class Keybindings implements KeyListener {
         switch (keyCode){
             case KeyEvent.VK_W:
                 up = true;
-                System.out.println("up");
+                //System.out.println("up");
                 break;
             case KeyEvent.VK_S:
                 down = true;
-                System.out.println("down");
+                //System.out.println("down");
                 break;
             case KeyEvent.VK_A:
                 left = true;
-                System.out.println("left");
+                //System.out.println("left");
                 break;
             case KeyEvent.VK_D:
                 right = true;
-                System.out.println("right");
+                //System.out.println("right");
                 break;
             case KeyEvent.VK_SPACE:
                 destroy =  true;
-                System.out.println("Destroy");
+                //System.out.println("Destroy");
                 break;
         }
     }

@@ -7,11 +7,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.Serializable;
 
-public class Main {
+public class Main implements Serializable {
     public static final String VERSION = "1.0";
     public static final String TITLE = "Game";
-    public static final Dimension dimension = new Dimension(1000, 1000);
+    public static final Dimension dimension = new Dimension(500, 500);
     public static void main(String[] args) {
         JFrame gameFrame = new JFrame(TITLE);
         gameFrame.setSize(dimension);
